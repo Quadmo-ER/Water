@@ -6,35 +6,43 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.media.AudioAttributes;
+import android.net.Uri;
 import android.os.Build;
 
 public class WaterReminderReceiver extends BroadcastReceiver {
     private static final String CHANNEL_ID = "water_reminders";
-    private static final int NOTIFICATION_ID = 2001;
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (!ReminderScheduler.isEnabled(context)) {
+        int reminderId = intent.getIntExtra(ReminderScheduler.EXTRA_REMINDER_ID, 0);
+        String title = intent.getStringExtra(ReminderScheduler.EXTRA_REMINDER_TITLE);
+        if (reminderId == 0) {
             return;
         }
 
-        showNotification(context);
-        ReminderScheduler.scheduleNext(context);
+        showNotification(context, reminderId, title == null ? "Drink water" : title);
     }
 
-    private void showNotification(Context context) {
+    private void showNotification(Context context, int reminderId, String title) {
         NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         if (manager == null) {
             return;
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Uri sound = android.provider.Settings.System.DEFAULT_NOTIFICATION_URI;
+            AudioAttributes audioAttributes = new AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .build();
             NotificationChannel channel = new NotificationChannel(
                     CHANNEL_ID,
                     "Water reminders",
                     NotificationManager.IMPORTANCE_DEFAULT
             );
-            channel.setDescription("Hourly reminders to drink water");
+            channel.setDescription("Hourly and custom reminders to drink water");
+            channel.setSound(sound, audioAttributes);
             manager.createNotificationChannel(channel);
         }
 
@@ -52,11 +60,12 @@ public class WaterReminderReceiver extends BroadcastReceiver {
 
         builder
                 .setSmallIcon(android.R.drawable.ic_dialog_info)
-                .setContentTitle("Drink water")
+                .setContentTitle(title)
                 .setContentText("Time for a glass of water.")
                 .setContentIntent(contentIntent)
-                .setAutoCancel(true);
+                .setAutoCancel(true)
+                .setDefaults(android.app.Notification.DEFAULT_SOUND);
 
-        manager.notify(NOTIFICATION_ID, builder.build());
+        manager.notify(2000 + reminderId, builder.build());
     }
 }
