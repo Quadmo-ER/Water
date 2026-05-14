@@ -1,13 +1,18 @@
 # Water Reminder Android App
 
-A simple native Android app that reminds you to drink water at a custom interval.
+A simple native Android app that reminds you to drink water every hour or at custom hourly intervals.
 
 ## Features
 
-- Start and stop water reminders.
-- Change the reminder interval in minutes.
-- Sends Android notifications.
+- 2026-style modern native UI.
+- Custom app icon.
+- Add multiple reminders.
+- Default reminder is every `1` hour.
+- Change each new reminder interval in hours.
+- Pause, start, and delete reminders.
+- Sends Android notifications with sound.
 - Reschedules after phone restart if reminders were active.
+- Battery-friendly scheduling using Android inexact repeating alarms. No always-running background service.
 - Uses plain Java and Android system APIs. No external app libraries.
 
 ## How to Run
@@ -43,4 +48,6 @@ For personal use, the debug APK is enough. For Play Store upload, you need a sig
 
 ## Default Reminder
 
-The app defaults to `60` minutes. Change the number and tap **Start reminder**.
+The app defaults to `1` hour. Add more reminders if you want different hydration reminders during the day.
+
+Android may delay alarms slightly during battery saver or deep sleep. This is intentional so the app does not consume more battery
